@@ -7,33 +7,38 @@ import axios from 'axios';
 
 function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
-  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState(""); 
-  const[loading,setLoading]=useState(false)
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
-  const { serverUrl } = useContext(UserDataContext);
+  const { serverUrl, handleCurrentuser, setUserData } = useContext(UserDataContext);
 
   const handleSignIn = async (e) => {
     e.preventDefault();
-    setErrorMsg(""); // reset
-    setLoading(true)
+    setErrorMsg("");
+    setLoading(true);
 
     try {
       const response = await axios.post(
         `${serverUrl}/api/auth/signin`,
-        {email, password },
+        { email, password },
         { withCredentials: true }
       );
-      console.log("Success:", response.data);
-      setLoading(false)
-     
+
+      console.log("Signin success, status:", response.status);
+
+      await handleCurrentuser(); // 👈 Important
+
+      setLoading(false);
+      navigate('/');
     } catch (error) {
-      const msg = error.response?.data?.message || "Signup failed";
+      const msg = error.response?.data?.message || "Signin failed";
       setErrorMsg(msg);
-      setLoading(false)
-      console.error("Signup Error:", msg);
+      setUserData(null);
+      setLoading(false);
+      console.error("Signin Error:", msg);
     }
   };
 
@@ -55,8 +60,6 @@ function SignIn() {
             {errorMsg}
           </div>
         )}
-
-      
 
         <input
           type="email"
@@ -92,17 +95,17 @@ function SignIn() {
         <button
           className="min-w-[150px] h-[60px] mt-[30px] text-black font-semibold bg-white rounded-full text-[19px]"
           type="submit"
+          disabled={loading}
         >
-          Sign In
+          {loading ? "Loading..." : "Sign In"}
         </button>
 
         <p
           className="text-white text-[18px] cursor-pointer"
           onClick={() => navigate("/signup")}
         >
-          want to create a new account?{" "}
-          <span className="text-blue-400" disabled={loading}>{loading? "Loading..." :"Sign Up"}
-</span>
+          Want to create a new account?{" "}
+          <span className="text-blue-400">{loading ? "Loading..." : "Sign Up"}</span>
         </p>
       </form>
     </div>

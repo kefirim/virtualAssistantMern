@@ -13,7 +13,7 @@ function SignUp() {
   const[loading,setLoading]=useState(false)
   const [errorMsg, setErrorMsg] = useState(""); // pour afficher l'erreur
   const navigate = useNavigate();
-  const { serverUrl } = useContext(UserDataContext);
+  const { serverUrl,userData, setUserData } = useContext(UserDataContext);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -25,11 +25,14 @@ function SignUp() {
         { name, email, password },
         { withCredentials: true }
       );
-      console.log("Success:", response.data);
+      setUserData(response.data)
+      console.log(response.data)
       setLoading(false)
+      navigate("/customize")
     } catch (error) {
       const msg = error.response?.data?.message || "Signup failed";
       setErrorMsg(msg);
+      setUserData(null)
        setLoading(false)
       console.error("Signup Error:", msg);
     }
